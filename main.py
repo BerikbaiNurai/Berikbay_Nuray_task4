@@ -3,7 +3,7 @@ from sqlmodel import SQLModel, Session, select
 from models import User
 from database import init_db, get_session, engine
 from schemas import UserCreate, UserLogin, UserRead, Token
-from auth  import get_password_hash, verify_password, create_access_token, get_current_user
+from auth import get_password_hash, verify_password, create_access_token, get_current_user
 
 app = FastAPI()
 
@@ -35,6 +35,6 @@ def login(user: UserLogin, session: Session = Depends(get_session)):
     
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.get("/protected")
-async def protected_route(current_user: str = Depends(get_current_user)):
-    return {"message": f"Привет, {current_user}! Это защищенный маршрут."}
+@app.get("/users/me", response_model=UserRead)
+async def read_users_me(current_user: User = Depends(get_current_user)):
+    return current_user

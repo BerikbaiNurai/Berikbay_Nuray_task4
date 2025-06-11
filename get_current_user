@@ -1,0 +1,11 @@
+from fastapi import Depends
+from sqlmodel import Session, select
+from database import get_session
+from models import User
+
+async def get_current_user(token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)):
+    username = decode_access_token(token)
+    user = session.exec(select(User).where(User.username == username)). first()
+    if user is None:
+        raise HTTPException(status_code=401, detail="user not found")
+    return user
